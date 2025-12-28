@@ -1,0 +1,101 @@
+[
+  {
+    "name": "rent",
+    "category": "fixed",
+    "budget": 980.0,
+    "emoji": "\ud83c\udfe0",
+    "recurrence": "monthly",
+    "spent": 4650.0,
+    "balance": 0.0
+  },
+  {
+    "name": "car",
+    "category": "savings",
+    "budget": 10000.0,
+    "emoji": "\ud83d\ude97",
+    "recurrence": "none",
+    "spent": 3800.0,
+    "balance": 0.0
+  },
+  {
+    "name": "food",
+    "category": "variable",
+    "budget": 200.0,
+    "emoji": "\ud83c\udf70",
+    "recurrence": "monthly",
+    "spent": 255.0,
+    "balance": 0.0
+  },
+  {
+    "name": "grad school",
+    "category": "savings",
+    "budget": 30000.0,
+    "emoji": "\ud83c\udfeb",
+    "recurrence": "none",
+    "spent": 0,
+    "balance": 0
+  },
+  {
+    "name": "wish list",
+    "category": "savings",
+    "budget": 1000.0,
+    "emoji": "\ud83e\uddde\u200d\u2640\ufe0f",
+    "recurrence": "none",
+    "spent": 0,
+    "balance": 0
+  },
+  {
+    "name": "other",
+    "category": "variable",
+    "budget": 50.0,
+    "emoji": "\ud83e\udee7",
+    "recurrence": "monthly",
+    "spent": 0,
+    "balance": 0
+  },
+  {
+    "name": "investments",
+    "category": "variable",
+    "budget": 100.0,
+    "emoji": "\ud83d\udc5c",
+    "recurrence": "none",
+    "spent": 100.0,
+    "balance": 0.0
+  },
+  {
+    "name": "fun",
+    "category": "variable",
+    "budget": 250.0,
+    "emoji": "\ud83d\udc96",
+    "recurrence": "none",
+    "spent": 95.0,
+    "balance": 0.0
+  },
+  {
+    "name": "utilities + wifi",
+    "category": "fixed",
+    "budget": 100.0,
+    "emoji": "\ud83d\udcd1",
+    "recurrence": "none",
+    "spent": 0,
+    "balance": 0
+  },
+  {
+    "name": "subscriptions",
+    "category": "fixed",
+    "budget": 4.0,
+    "emoji": "\ud83e\udea9",
+    "recurrence": "monthly",
+    "spent": 4.0,
+    "balance": 0.0
+  },
+  {
+    "name": "tuition",
+    "category": "fixed",
+    "budget": 1630.5,
+    "emoji": "\ud83d\udcd6",
+    "recurrence": "none",
+    "spent": 0,
+    "balance": 0
+  }
+]

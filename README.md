@@ -1,6 +1,8 @@
 # budgetbaddie
 
-budgetbaddie code structure
+## Code Structure
+```
+budgetbaddie/
 |-- app.py
 |-- envelopes.json
 |-- README.md
@@ -13,4 +15,4 @@ budgetbaddie code structure
 |   |-- storage.py
 |-- views/
 |   |-- dashboard.py
-
+```

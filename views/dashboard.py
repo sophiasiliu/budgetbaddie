@@ -61,11 +61,11 @@ class Dashboard(tk.Tk):
 
         tk.Label(cash_frame, text="Money To Budget:", bg="white").pack(side="left")
 
-        self.cash_var = tk.StringVar(value=f"${self.controller.cash_on_hand:.2f}")
+        self.cash_var = tk.StringVar(value=f"${self.controller.money_to_budget:.2f}")
         self.cash_entry = tk.Entry(cash_frame, textvariable=self.cash_var, width=10, bg="white")
         self.cash_entry.pack(side="left", padx=5)
 
-        ttk.Button(cash_frame, text="Update Cash", command=self.update_cash_on_hand, style="Pink.TButton").pack(side="left", padx=5)
+        ttk.Button(cash_frame, text="Update Cash", command=self.update_money_to_budget, style="Pink.TButton").pack(side="left", padx=5)
         
         ttk.Button(self, text="Add Envelope", command=self.add_dialog, style="Pink.TButton").pack(pady=5)
         ttk.Button(self, text="Apply Recurrence", command=self.apply_recur, style="Pink.TButton").pack()
@@ -74,17 +74,17 @@ class Dashboard(tk.Tk):
         self.refresh()
 
 
-    def update_cash_on_hand(self):
+    def update_money_to_budget(self):
         # Remove $ if the user typed it
         raw_value = self.cash_var.get().replace("$", "").strip()
         try:
             amount = float(raw_value)
-            self.controller.set_cash_on_hand(amount)  # update controller data
+            self.controller.set_money_to_budget(amount)  # update controller data
             # Update display in Entry with $ and two decimals
-            self.cash_var.set(f"${self.controller.cash_on_hand:.2f}")
+            self.cash_var.set(f"${self.controller.money_to_budget:.2f}")
         except ValueError:
             # Reset to previous value if invalid input
-            self.cash_var.set(f"${self.controller.cash_on_hand:.2f}")
+            self.cash_var.set(f"${self.controller.money_to_budget:.2f}")
 
     def refresh(self):
         categories = ["fixed", "variable", "savings"]
@@ -114,14 +114,23 @@ class Dashboard(tk.Tk):
                     [e for e in self.controller.envelopes if e.category.lower() == cat],
                     key=lambda x: x.name.lower()
                 ):
-                    self.create_envelope_row(env)
+                    self.create_envelope_row(env, rows_container)
         else:
-            # update existing rows, create rows for new envelopes
-            for env in self.controller.envelopes:
-                if env.name in self.envelope_widgets:
-                    self.update_envelope_row(env)
-                else:
-                    self.create_envelope_row(env)
+            # Clear all category frames
+            for frame in self.category_frames.values():
+                for child in frame.winfo_children():
+                    child.destroy()
+
+            self.envelope_widgets = {}  # reset widget lookup
+
+            # Recreate sorted envelope rows for each category
+            for cat in categories:
+                parent = self.category_frames[cat]
+                for env in sorted(
+                    [e for e in self.controller.envelopes if e.category.lower() == cat],
+                    key=lambda x: x.name.lower()
+                ):
+                    self.create_envelope_row(env, parent)
 
     def add_dialog(self):
         import subprocess
@@ -246,7 +255,7 @@ class Dashboard(tk.Tk):
                     self.update_envelope_row(env)
 
                 # Update cash display
-                self.cash_var.set(f"${self.controller.cash_on_hand:.2f}")
+                self.cash_var.set(f"${self.controller.money_to_budget:.2f}")
                 dialog.destroy()
             except ValueError:
                 tk.messagebox.showerror("Error", "Enter a valid number or not enough cash!")
@@ -260,9 +269,10 @@ class Dashboard(tk.Tk):
 
         # Remove from UI if it exists
         if name in self.envelope_widgets:
-            balance_label, progress = self.envelope_widgets.pop(name)
-            frame = balance_label.master  # the parent frame of the label is the row
-            frame.destroy()
+            widgets = self.envelope_widgets.pop(name)
+            # any widget can tell us the parent frame — use name_label
+            row_frame = widgets["name_label"].master
+            row_frame.destroy()
 
     def apply_recur(self):
         self.controller.reset_all()
@@ -323,7 +333,7 @@ class Dashboard(tk.Tk):
 
         # --- Edit goal ---
         tk.Label(dialog, text="Edit Goal Amount:").pack(pady=5)
-        new_goal_var = tk.DoubleVar(value=env.budget)
+        new_goal_var = tk.StringVar(value=env.budget)
         tk.Entry(dialog, textvariable=new_goal_var).pack(pady=5)
 
         # --- Edit emoji ---
@@ -338,19 +348,28 @@ class Dashboard(tk.Tk):
 
             # Remove from UI
             if env.name in self.envelope_widgets:
-                balance_label, progress_bar = self.envelope_widgets.pop(env.name)
-                row_frame = balance_label.master  # the parent frame of the label is the row
+                widgets = self.envelope_widgets.pop(env.name)
+                # any widget can tell us the parent frame — use name_label
+                row_frame = widgets["name_label"].master
                 row_frame.destroy()
 
             dialog.destroy()
 
         # --- Update goal + emoji ---
         def edit_goal_and_emoji():
-            # Update goal if user entered something
+            raw_value = new_goal_var.get().strip()
+            if raw_value == "":
+                # user cleared field — handle it gracefully
+                return
+            # update it user entered new value
             try:
-                env.budget = float(new_goal_var.get())
+                new_budget = float(raw_value)
             except ValueError:
-                pass  # no change
+                tk.messagebox.showerror("Error", "Goal must be a valid number.")
+                return
+
+            # apply update
+            env.budget = new_budget
 
             # Update emoji if changed
             new_emoji = new_emoji_var.get().strip()
@@ -360,29 +379,30 @@ class Dashboard(tk.Tk):
             # Save + refresh UI
             from utils.storage import save_envelopes
             save_envelopes(self.controller.envelopes)
-            self.refresh()
+            self.update_envelope_row(env)
             dialog.destroy()
 
         ttk.Button(dialog, text="Delete Envelope", command=confirm_delete, style="Pink.TButton").pack(pady=5)
         ttk.Button(dialog, text="Update", command=edit_goal_and_emoji, style="Pink.TButton").pack(pady=5)
 
-    def create_envelope_row(self, env):
-        # Get the correct category container
-        container = self.category_frames.get(env.category.lower(), self.list_frame)
-
-        frame = ttk.Frame(container, style="White.TFrame")
+    def create_envelope_row(self, env, parent):
+        frame = ttk.Frame(parent, style="White.TFrame")
         frame.pack(fill='x', pady=4, padx=10)
         frame.grid_columnconfigure(2, weight=1)
 
+        # Name + emoji
+        name_label = ttk.Label(frame, text=f"{env.emoji} {env.name}", style="White.TLabel")
+        name_label.grid(row=0, column=0, padx=(0,10), sticky="w")
+
+        # Balance / Goal
         balance_label = ttk.Label(frame, text=f"${env.balance:.2f} / ${env.budget:.2f}", style="White.TLabel")
         balance_label.grid(row=0, column=1, padx=10, sticky="w")
 
+        # Progress bar
         progress = ttk.Progressbar(frame, value=env.progress() * 100, style="Pink.Horizontal.TProgressbar")
         progress.grid(row=0, column=2, sticky="ew", padx=10)
 
-        ttk.Label(frame, text=f"{env.emoji} {env.name}", style="White.TLabel") \
-            .grid(row=0, column=0, padx=(0,10), sticky="w")
-
+        # Buttons
         ttk.Button(frame, text="Edit", command=lambda e=env: self.edit_dialog(e), style="Pink.TButton") \
             .grid(row=0, column=3, padx=5)
         ttk.Button(frame, text="Add Cash", command=lambda e=env: self.add_cash_dialog(e), style="Pink.TButton") \
@@ -390,13 +410,18 @@ class Dashboard(tk.Tk):
         ttk.Button(frame, text="Spend", command=lambda e=env: self.spend_dialog(e), style="Pink.TButton") \
             .grid(row=0, column=5, padx=5)
 
-        # Store references for updating later
-        self.envelope_widgets[env.name] = (balance_label, progress)
-
+        # Store as a dictionary, not a tuple
+        self.envelope_widgets[env.name] = {
+            "name_label": name_label,
+            "balance_label": balance_label,
+            "progress_bar": progress,
+            "category": env.category.lower()
+        }
 
             
     def update_envelope_row(self, env):
-        balance_label, progress = self.envelope_widgets[env.name]  # unpack tuple
-        balance_label.config(text=f"${env.balance:.2f} / ${env.budget:.2f}")
-        progress.config(value=env.progress() * 100)
+        widgets = self.envelope_widgets[env.name]
+        widgets["name_label"].config(text=f"{env.emoji} {env.name}")
+        widgets["balance_label"].config(text=f"${env.balance:.2f} / ${env.budget:.2f}")
+        widgets["progress_bar"].config(value=env.progress() * 100)
 

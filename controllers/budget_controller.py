@@ -1,15 +1,17 @@
 # controllers/budget_controller.py
 
-from utils.storage import save_envelopes, load_envelopes
+from utils.storage import save_envelopes, load_envelopes, save_settings, load_settings
 from models.envelopes import Envelope, apply_recurrence
 
 class BudgetController:
     def __init__(self):
         self.envelopes = load_envelopes()
-        self.cash_on_hand = 0  # your account / wallet money
+        settings = load_settings()
+        self.money_to_budget = settings.get("money_to_budget", 0)  
 
-    def set_cash_on_hand(self, amount):
-        self.cash_on_hand = float(amount)
+    def set_money_to_budget(self, amount):
+        self.money_to_budget = float(amount)
+        save_settings(self.money_to_budget)
 
     def add_envelope(self, name, category, budget, emoji, recurrence):
         self.envelopes.append(
@@ -37,17 +39,20 @@ class BudgetController:
         save_envelopes(self.envelopes)
 
     def add_cash(self, name, amount):
-        """Stuff money from cash_on_hand into envelope."""
+        """Stuff money from money_to_budget into envelope."""
         amount = float(amount)
-        if amount > self.cash_on_hand:
+        if amount > self.money_to_budget:
             raise ValueError("Not enough cash to stuff envelope!")
         for e in self.envelopes:
             if e.name == name:
                 e.balance += amount
                 break
-        self.cash_on_hand -= amount  # subtract from cash_on_hand
+        self.money_to_budget -= amount  # subtract from money_to_budget
         save_envelopes(self.envelopes)
+        save_settings(self.money_to_budget)
 
     def reset_all(self):
         apply_recurrence(self.envelopes)
         save_envelopes(self.envelopes)
+        self.money_to_budget = 0 # think about this
+        save_settings(self.money_to_budget)

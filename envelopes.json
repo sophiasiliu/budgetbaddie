@@ -3,16 +3,16 @@
     "name": "rent",
     "category": "fixed",
     "budget": 980.0,
-    "emoji": "\ud83c\udfe0",
+    "emoji": "\ud83e\uddfa",
     "recurrence": "monthly",
-    "spent": 4650.0,
-    "balance": 0.0
+    "spent": 5280.0,
+    "balance": 90.0
   },
   {
     "name": "car",
     "category": "savings",
     "budget": 10000.0,
-    "emoji": "\ud83d\ude97",
+    "emoji": "\ud83c\udf80",
     "recurrence": "none",
     "spent": 3800.0,
     "balance": 0.0
@@ -25,15 +25,6 @@
     "recurrence": "monthly",
     "spent": 255.0,
     "balance": 0.0
-  },
-  {
-    "name": "grad school",
-    "category": "savings",
-    "budget": 30000.0,
-    "emoji": "\ud83c\udfeb",
-    "recurrence": "none",
-    "spent": 0,
-    "balance": 0
   },
   {
     "name": "wish list",
@@ -86,7 +77,7 @@
     "budget": 4.0,
     "emoji": "\ud83e\udea9",
     "recurrence": "monthly",
-    "spent": 4.0,
+    "spent": 28.0,
     "balance": 0.0
   },
   {
@@ -94,6 +85,15 @@
     "category": "fixed",
     "budget": 1630.5,
     "emoji": "\ud83d\udcd6",
+    "recurrence": "none",
+    "spent": 496.0,
+    "balance": 0.0
+  },
+  {
+    "name": "grad school",
+    "category": "savings",
+    "budget": 30000.0,
+    "emoji": "\ud83e\udeb4",
     "recurrence": "none",
     "spent": 0,
     "balance": 0

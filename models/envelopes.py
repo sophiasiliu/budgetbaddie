@@ -18,9 +18,17 @@ class Envelope:
     
 def apply_recurrence(envelopes: list[Envelope]):
     for env in envelopes:
-        if env.recurrence == "variable":
-            env.spent = 0  # refill budget
-        elif env.recurrence == "fixed":
-            env.spent = 0  # reset to zero
-        elif env.recurrence == "savings":
+        if env.recurrence == "monthly":
+            if env.category == "fixed":
+                env.balance = 0  # refill budget
+            elif env.category == "variable":
+                if env.balance == env.category: #if all money was spent, else carry over to next month
+                    env.balance = 0
+        elif env.recurrence == "none":
             pass  # lifetime, do nothing
+
+def apply_clear(envelopes: list[Envelope]):
+    for env in envelopes:
+        env.balance = 0
+        env.spent = 0
+    

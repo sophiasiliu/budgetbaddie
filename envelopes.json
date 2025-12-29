@@ -1,21 +1,12 @@
 [
   {
-    "name": "rent",
-    "category": "fixed",
-    "budget": 980.0,
-    "emoji": "\ud83e\uddfa",
-    "recurrence": "monthly",
-    "spent": 5280.0,
-    "balance": 90.0
-  },
-  {
     "name": "car",
     "category": "savings",
     "budget": 10000.0,
     "emoji": "\ud83c\udf80",
     "recurrence": "none",
-    "spent": 3800.0,
-    "balance": 0.0
+    "spent": 0,
+    "balance": 0
   },
   {
     "name": "food",
@@ -23,8 +14,8 @@
     "budget": 200.0,
     "emoji": "\ud83c\udf70",
     "recurrence": "monthly",
-    "spent": 255.0,
-    "balance": 0.0
+    "spent": 0,
+    "balance": 0
   },
   {
     "name": "wish list",
@@ -49,25 +40,16 @@
     "category": "variable",
     "budget": 100.0,
     "emoji": "\ud83d\udc5c",
-    "recurrence": "none",
-    "spent": 100.0,
-    "balance": 0.0
+    "recurrence": "monthly",
+    "spent": 0,
+    "balance": 0
   },
   {
     "name": "fun",
     "category": "variable",
     "budget": 250.0,
     "emoji": "\ud83d\udc96",
-    "recurrence": "none",
-    "spent": 95.0,
-    "balance": 0.0
-  },
-  {
-    "name": "utilities + wifi",
-    "category": "fixed",
-    "budget": 100.0,
-    "emoji": "\ud83d\udcd1",
-    "recurrence": "none",
+    "recurrence": "monthly",
     "spent": 0,
     "balance": 0
   },
@@ -77,17 +59,8 @@
     "budget": 4.0,
     "emoji": "\ud83e\udea9",
     "recurrence": "monthly",
-    "spent": 28.0,
-    "balance": 0.0
-  },
-  {
-    "name": "tuition",
-    "category": "fixed",
-    "budget": 1630.5,
-    "emoji": "\ud83d\udcd6",
-    "recurrence": "none",
-    "spent": 496.0,
-    "balance": 0.0
+    "spent": 0,
+    "balance": 0
   },
   {
     "name": "grad school",
@@ -95,6 +68,33 @@
     "budget": 30000.0,
     "emoji": "\ud83e\udeb4",
     "recurrence": "none",
+    "spent": 0,
+    "balance": 0
+  },
+  {
+    "name": "wifi",
+    "category": "fixed",
+    "budget": 13.56,
+    "emoji": "\u2601\ufe0f",
+    "recurrence": "monthly",
+    "spent": 0,
+    "balance": 0
+  },
+  {
+    "name": "utilities",
+    "category": "variable",
+    "budget": 85.0,
+    "emoji": "\ud83d\udcd1",
+    "recurrence": "none",
+    "spent": 0,
+    "balance": 0
+  },
+  {
+    "name": "rent",
+    "category": "fixed",
+    "budget": 980.0,
+    "emoji": "\ud83e\uddfa",
+    "recurrence": "monthly",
     "spent": 0,
     "balance": 0
   }

@@ -1,7 +1,7 @@
 # controllers/budget_controller.py
 
 from utils.storage import save_envelopes, load_envelopes, save_settings, load_settings
-from models.envelopes import Envelope, apply_recurrence
+from models.envelopes import Envelope, apply_recurrence, apply_clear
 
 class BudgetController:
     def __init__(self):
@@ -14,6 +14,8 @@ class BudgetController:
         save_settings(self.money_to_budget)
 
     def add_envelope(self, name, category, budget, emoji, recurrence):
+        if any(e.name.lower() == name.lower() for e in self.envelopes):
+            raise ValueError(f"An envelope with the name '{name}' already exists!")
         self.envelopes.append(
             Envelope(
                 name=name,
@@ -54,5 +56,10 @@ class BudgetController:
     def reset_all(self):
         apply_recurrence(self.envelopes)
         save_envelopes(self.envelopes)
-        self.money_to_budget = 0 # think about this
+        save_settings(self.money_to_budget)
+
+    def clear(self):
+        apply_clear(self.envelopes)
+        save_envelopes(self.envelopes)
+        self.money_to_budget = 0
         save_settings(self.money_to_budget)

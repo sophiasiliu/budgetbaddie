@@ -11,7 +11,7 @@ class Dashboard(tk.Tk):
         super().__init__()
         self.envelope_widgets = {}
         self.title("Budget Baddie 👛")
-        self.geometry("850x600")
+        self.geometry("850x650")
         self.configure(bg="white")
         self.controller = BudgetController()
 
@@ -68,7 +68,8 @@ class Dashboard(tk.Tk):
         ttk.Button(cash_frame, text="Update Cash", command=self.update_money_to_budget, style="Pink.TButton").pack(side="left", padx=5)
         
         ttk.Button(self, text="Add Envelope", command=self.add_dialog, style="Pink.TButton").pack(pady=5)
-        ttk.Button(self, text="Apply Recurrence", command=self.apply_recur, style="Pink.TButton").pack()
+        ttk.Button(self, text="Apply Recurrence", command=self.apply_recur, style="Pink.TButton").pack(pady=5)
+        ttk.Button(self, text="Clear All", command=self.apply_clear_all, style="Pink.TButton").pack()
         self.list_frame = ttk.Frame(self, style="White.TFrame")
         self.list_frame.pack(fill="both", expand=True)
         self.refresh()
@@ -166,7 +167,7 @@ class Dashboard(tk.Tk):
 
         # Budget Amount
         tk.Label(dialog, text="Budget Amount:").pack(pady=5)
-        budget_var = tk.DoubleVar()
+        budget_var = tk.StringVar(value="$0.00")
         tk.Entry(dialog, textvariable=budget_var).pack(pady=5)
 
         # Recurrence Dropdown
@@ -194,12 +195,22 @@ class Dashboard(tk.Tk):
         def submit():
             name = name_var.get()
             category = category_var.get()
-            budget = budget_var.get()
             recurrence = recur_var.get()
             emoji = emoji_var.get()
 
-            if name and category and budget is not None:
-                self.controller.add_envelope(name, category, budget, emoji, recurrence)
+            raw_budget = budget_var.get().replace("$", "").strip()
+            try:
+                budget = float(raw_budget)
+            except ValueError:
+                tk.messagebox.showerror("Error", "Enter a valid number for budget!")
+                return
+
+            if name and category:
+                try:
+                    self.controller.add_envelope(name, category, budget, emoji, recurrence)
+                except ValueError as e:
+                    tk.messagebox.showerror("Error", str(e))
+                    return
                 self.refresh()
                 self.show_overview()
                 dialog.destroy()
@@ -209,28 +220,46 @@ class Dashboard(tk.Tk):
     def spend_dialog(self, env):
         dialog = tk.Toplevel(self)
         dialog.title(f"Spend from {env.name} {env.emoji}")
-        dialog.geometry("300x200")
+        dialog.geometry("300x230")
         dialog.configure(bg="white")
 
         tk.Label(dialog, text=f"Spending from: {env.name} {env.emoji}", bg="white").pack(pady=(15, 5))
 
         tk.Label(dialog, text="Amount to spend:", bg="white").pack()
-        amount_var = tk.StringVar(value="0.00")
+        amount_var = tk.StringVar(value="$0.00")
         tk.Entry(dialog, textvariable=amount_var, width=10, bg="white").pack(pady=5)
 
-        def confirm_spend():
+        # --- Standard spend of typed amount ---
+        def confirm_spend(amount=None):
             try:
-                amount = float(amount_var.get())
+                if amount is None:     # user manually entered value
+                    amount = float(amount_var.get().replace("$", "").strip())
+
+                # Spend, and clamp so we never overspend
+                amount = min(amount, env.budget)
+
+                if amount <= 0:
+                    tk.messagebox.showerror("Error", "Not enough in envelope to spend!")
+                    return
+
                 self.controller.spend(env.name, amount)
 
-                # refresh totals + envelope list
+                # update UI & close
                 self.update_envelope_row(env)
                 dialog.destroy()
 
             except ValueError:
                 tk.messagebox.showerror("Error", "Enter a valid number!")
 
-        ttk.Button(dialog, text="Spend", command=confirm_spend, style="Pink.TButton").pack(pady=15)
+        # --- NEW: spend everything currently in the envelope ---
+        def spend_all():
+            if env.balance <= 0:
+                tk.messagebox.showinfo("Empty", "This envelope is already empty!")
+                return
+            confirm_spend(env.balance)
+
+        ttk.Button(dialog, text="Spend", command=lambda: confirm_spend(), style="Pink.TButton").pack(pady=8)
+        ttk.Button(dialog, text="Spend All", command=spend_all, style="Pink.TButton").pack(pady=4)
 
     def add_cash_dialog(self, env):
         dialog = tk.Toplevel(self)
@@ -240,30 +269,47 @@ class Dashboard(tk.Tk):
 
         tk.Label(dialog, text=f"Stuffing: {env.name} {env.emoji}", bg="white").pack(pady=(15, 5))
         tk.Label(dialog, text="Amount to add:", bg="white").pack()
-        amount_var = tk.StringVar(value="0.00")
+        amount_var = tk.StringVar(value="$0.00")
         tk.Entry(dialog, textvariable=amount_var, width=10, bg="white").pack(pady=5)
 
-        def confirm_add():
+        def confirm_add(amount=None):
             try:
-                amount = float(amount_var.get())
+                if amount is None:   # manual entry
+                    amount = float(amount_var.get().replace("$", "").strip())
+
                 self.controller.add_cash(env.name, amount)
 
-                # If this envelope doesn't have a UI row yet, create it
+                # update envelope row
                 if env.name not in self.envelope_widgets:
                     self.create_envelope_row(env)
                 else:
                     self.update_envelope_row(env)
 
-                # Update cash display
+                # refresh money-to-budget display
                 self.cash_var.set(f"${self.controller.money_to_budget:.2f}")
                 dialog.destroy()
+
             except ValueError:
                 tk.messagebox.showerror("Error", "Enter a valid number or not enough cash!")
+        def fill_envelope():
+            remaining_needed = env.budget - env.balance
+            if remaining_needed <= 0:
+                tk.messagebox.showinfo("Already Full", "This envelope is already fully funded!")
+                return
+
+            # respect available money_to_budget
+            amount = min(remaining_needed, self.controller.money_to_budget)
+            if amount <= 0:
+                tk.messagebox.showerror("Error", "No money available to budget!")
+                return
+            confirm_add(amount)
 
         ttk.Button(dialog, text="Add Cash", command=confirm_add, style="Pink.TButton").pack(pady=15)
+        ttk.Button(dialog, text="Fill Envelope", command=fill_envelope, style="Pink.TButton").pack(pady=4)
 
 
-    def delete(self, name):
+
+    def delete(self, name, category):
         # Remove from controller
         self.controller.delete_envelope(name)
 
@@ -276,6 +322,10 @@ class Dashboard(tk.Tk):
 
     def apply_recur(self):
         self.controller.reset_all()
+        self.refresh()
+
+    def apply_clear_all(self):
+        self.controller.clear()
         self.refresh()
 
     def pick_emoji(self):

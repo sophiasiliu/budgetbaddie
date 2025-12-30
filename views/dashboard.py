@@ -20,7 +20,6 @@ class Dashboard(tk.Tk):
         style.configure("White.TFrame", background="white")
         style.configure("White.TLabel", background="white")
 
-        # ====== PINK ROUNDED PROGRESS BAR STYLE ======
         style = ttk.Style()
         style.configure("White.TFrame", background="white")
         style.theme_use('clam')  # clam theme supports rounded progress bars
@@ -33,9 +32,7 @@ class Dashboard(tk.Tk):
             lightcolor="#ff69b4",    # optional highlight
             darkcolor="#ff69b4"      # optional shadow
         )
-        # ============================================
 
-        # Pink ttk button
         style.configure(
             "Pink.TButton",
             background="#f5b3d4",   # button fill
@@ -46,7 +43,7 @@ class Dashboard(tk.Tk):
             focuscolor='none'
         )
 
-        # Optional: change hover color
+        # hover colour
         style.map(
             "Pink.TButton",
             background=[("active", "#f9e7f0")],  # lighter pink on hover
@@ -308,7 +305,6 @@ class Dashboard(tk.Tk):
         ttk.Button(dialog, text="Fill Envelope", command=fill_envelope, style="Pink.TButton").pack(pady=4)
 
 
-
     def delete(self, name, category):
         # Remove from controller
         self.controller.delete_envelope(name)
@@ -326,6 +322,7 @@ class Dashboard(tk.Tk):
 
     def apply_clear_all(self):
         self.controller.clear()
+        self.cash_var.set("$0.00")
         self.refresh()
 
     def pick_emoji(self):

@@ -83,7 +83,7 @@
   {
     "name": "utilities",
     "category": "variable",
-    "budget": 85.0,
+    "budget": 105.3,
     "emoji": "\ud83d\udcd1",
     "recurrence": "none",
     "spent": 0,
@@ -95,6 +95,15 @@
     "budget": 980.0,
     "emoji": "\ud83e\uddfa",
     "recurrence": "monthly",
+    "spent": 0,
+    "balance": 0
+  },
+  {
+    "name": "tuition",
+    "category": "savings",
+    "budget": 9000.0,
+    "emoji": "\ud83d\udcd6",
+    "recurrence": "none",
     "spent": 0,
     "balance": 0
   }

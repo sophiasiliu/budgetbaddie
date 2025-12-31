@@ -248,7 +248,6 @@ class Dashboard(tk.Tk):
             except ValueError:
                 tk.messagebox.showerror("Error", "Enter a valid number!")
 
-        # --- NEW: spend everything currently in the envelope ---
         def spend_all():
             if env.balance <= 0:
                 tk.messagebox.showinfo("Empty", "This envelope is already empty!")
